@@ -3,7 +3,7 @@ import time
 import numpy as np
 import pandas as pd
 import pylab as plt
-from bkcharts import Line
+from bokeh.models import Line
 from bokeh.models import ColumnDataSource, Legend, LinearColorMapper, HoverTool
 from bokeh.palettes import Category10
 from bokeh.plotting import figure
