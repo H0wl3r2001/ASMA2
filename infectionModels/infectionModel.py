@@ -246,3 +246,5 @@ for i in range(steps):
     p2=plot_cells_bokeh(model)
     grid_pane.object = p2
     time.sleep(0.2)
+agent_state = model.datacollector.get_agent_vars_dataframe()
+print (get_column_data(model))
