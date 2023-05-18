@@ -11,10 +11,17 @@ CANVAS_SIZE_Y = 500
 
 sim_params = {
     "num_agents": Slider(
-        "Number of agents",
+        "Number of regular agents",
         value=100,  # default
         min_value=10,
         max_value=300,
+        step=1,
+    ),
+    "num_traveling_agents": Slider(
+        "Number of traveling agents",
+        value=0,  # default
+        min_value=0,
+        max_value=100,
         step=1,
     ),
     "infection_rate": Slider(

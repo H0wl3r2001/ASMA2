@@ -12,6 +12,7 @@ class InfectionModel(Model):
     def __init__(
         self,
         num_agents: int = 10,
+        num_traveling_agents: int = 0,
         width: int = 10,
         height: int = 10,
         infection_rate: float = 0.4,
@@ -22,6 +23,7 @@ class InfectionModel(Model):
         recovery_time_multiplier: float = 1.0,
     ) -> None:
         self.num_agents = num_agents
+        self.num_traveling_agents = num_traveling_agents
         self.infection_rate = infection_rate
         self.death_rate = death_rate
         self.start_infection_rate = start_infection_rate
@@ -42,29 +44,47 @@ class InfectionModel(Model):
             }
         )
 
-        # Create agents
         for i in range(self.num_agents):
             a = InfectableAgent(i, self)
-            self.schedule.add(a)
+            self.add_agent(a)
 
-            # Add the agent to a random grid cell
-            x = self.random.randrange(self.grid.width)
-            y = self.random.randrange(self.grid.height)
-            self.grid.place_agent(a, (x, y))
-
-            # Infect some agents at start
-            infected = np.random.choice(
-                [0, 1], p=[1 - self.start_infection_rate, self.start_infection_rate]
-            )
-            if infected == 1:
-                a.state = State.INFECTED
-                a.infection_time = self.schedule.time
+        self.travelling_agents = []
+        for i in range(self.num_traveling_agents):
+            a = InfectableAgent(i + self.num_agents, self)
+            self.add_agent(a)
+            self.travelling_agents.append(a)
 
     def step(self) -> None:
         """Advance the model by one step."""
         self.datacollector.collect(self)
         self.schedule.step()
+        if len(self.travelling_agents) > 0:
+            self.travel()
+
+    def travel(self) -> None:
+        """Move traveling agents to random locations"""
+        for agent in self.travelling_agents:
+            self.place_agent(agent)
 
     def count_state(self, model: Model, state: State) -> int:
         """Count agents with a given state in the given model"""
         return len([a for a in model.schedule.agents if a.state is state])
+
+    def add_agent(self, agent: InfectableAgent) -> None:
+        self.schedule.add(agent)
+        self.place_agent(agent)
+        self.try_to_infect_agent(agent)
+        return agent
+
+    def place_agent(self, agent: InfectableAgent) -> None:
+        x = self.random.randrange(self.grid.width)
+        y = self.random.randrange(self.grid.height)
+        self.grid.place_agent(agent, (x, y))
+
+    def try_to_infect_agent(self, agent: InfectableAgent) -> None:
+        infected = np.random.choice(
+            [0, 1], p=[1 - self.start_infection_rate, self.start_infection_rate]
+        )
+        if infected == 1:
+            agent.state = State.INFECTED
+            agent.infection_time = self.schedule.time
