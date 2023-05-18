@@ -60,6 +60,8 @@ class InfectionModel(Model):
         self.schedule.step()
         if len(self.travelling_agents) > 0:
             self.travel()
+        if self.check_end():
+            self.running = False
 
     def travel(self) -> None:
         """Move traveling agents to random locations"""
@@ -88,3 +90,6 @@ class InfectionModel(Model):
         if infected == 1:
             agent.state = State.INFECTED
             agent.infection_time = self.schedule.time
+
+    def check_end(self) -> bool:
+        return not any([a.state is State.INFECTED for a in self.schedule.agents])
