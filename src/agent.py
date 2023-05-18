@@ -16,7 +16,7 @@ class InfectableAgent(Agent):
     def __init__(self, unique_id: int, model: Model) -> None:
         super().__init__(unique_id, model)
         self.state = State.SUSCEPTIBLE
-        self.age = self.random.normalvariate(18, 70)
+        self.age = self.random.normalvariate(0, 100)
         self.infection_time = 0
         self.set_recovery_time()
 
@@ -60,5 +60,17 @@ class InfectableAgent(Agent):
 
     def set_recovery_time(self) -> None:
         """Set recovery time"""
-        # TODO set recovery time based on age
-        self.recovery_time = self.random.randint(14, 28)
+        if self.age <= 12:
+            self.recovery_time = self.random.randint(2, 7)
+        elif self.age <= 19:
+            self.recovery_time = self.random.randint(4, 11)
+        elif self.age <= 29:
+            self.recovery_time = self.random.randint(5, 14)
+        elif self.age <= 39:
+            self.recovery_time = self.random.randint(7, 14)
+        elif self.age <= 59:
+            self.recovery_time = self.random.randint(8, 21)
+        elif self.age <= 79:
+            self.recovery_time = self.random.randint(14, 21)
+        else:
+            self.recovery_time = self.random.randint(14, 28)
