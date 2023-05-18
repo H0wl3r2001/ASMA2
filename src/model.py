@@ -17,11 +17,17 @@ class InfectionModel(Model):
         infection_rate: float = 0.4,
         death_rate: float = 0.02,
         start_infection_rate: float = 0.02,
+        wear_mask_chance: float = 0.5,
+        mask_effectiveness: float = 0.5,
+        recovery_time_multiplier: float = 1.0,
     ) -> None:
         self.num_agents = num_agents
         self.infection_rate = infection_rate
         self.death_rate = death_rate
         self.start_infection_rate = start_infection_rate
+        self.wear_mask_chance = wear_mask_chance
+        self.mask_effectiveness = mask_effectiveness
+        self.recovery_time_multiplier = recovery_time_multiplier
         self.grid = MultiGrid(width, height, True)
         self.schedule = RandomActivation(self)
         self.running = True

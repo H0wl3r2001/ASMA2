@@ -5,21 +5,21 @@ from model import InfectionModel
 from agent import InfectableAgent, State
 from mesa.visualization.modules import CanvasGrid, ChartModule
 
-NUM_CELLS = 10
+NUM_CELLS = 15
 CANVAS_SIZE_X = 500
 CANVAS_SIZE_Y = 500
 
 sim_params = {
     "num_agents": Slider(
         "Number of agents",
-        value=50,  # default
+        value=100,  # default
         min_value=10,
-        max_value=100,
+        max_value=300,
         step=1,
     ),
     "infection_rate": Slider(
         "Infection rate",
-        value=0.4,  # default
+        value=0.7,  # default
         min_value=0.1,
         max_value=1.0,
         step=0.1,
@@ -37,6 +37,27 @@ sim_params = {
         min_value=0.01,
         max_value=0.2,
         step=0.01,
+    ),
+    "wear_mask_chance": Slider(
+        "Chance for agents to wear mask",
+        value=0.5,  # default
+        min_value=0.0,
+        max_value=1.0,
+        step=0.1,
+    ),
+    "mask_effectiveness": Slider(
+        "Mask effectiveness",
+        value=0.4,  # default
+        min_value=0.0,
+        max_value=1.0,
+        step=0.1,
+    ),
+    "recovery_time_multiplier": Slider(
+        "Recovery time multiplier",
+        value=1.0,  # default
+        min_value=0.1,
+        max_value=5.0,
+        step=0.1,
     ),
     "width": NUM_CELLS,
     "height": NUM_CELLS,

@@ -18,6 +18,10 @@ class InfectableAgent(Agent):
         self.state = State.SUSCEPTIBLE
         self.age = self.random.normalvariate(0, 100)
         self.infection_time = 0
+        self.wear_mask = np.random.choice(
+            [False, True],
+            p=[1 - self.model.wear_mask_chance, self.model.wear_mask_chance],
+        )
         self.set_recovery_time()
 
     def step(self) -> None:
@@ -52,11 +56,18 @@ class InfectableAgent(Agent):
         if len(cellmates) == 0:
             return
         for agent in cellmates:
-            if self.random.random() > self.model.infection_rate:
+            if self.random.random() > self.get_infection_rate():
                 continue
             if self.state is State.INFECTED and agent.state is State.SUSCEPTIBLE:
                 agent.state = State.INFECTED
                 agent.infection_time = self.model.schedule.time
+
+    def get_infection_rate(self) -> float:
+        """Get infection rate, considering factors like wearing a mask"""
+        if self.wear_mask:
+            return self.model.infection_rate * (1 - self.model.mask_effectiveness)
+        else:
+            return self.model.infection_rate
 
     def set_recovery_time(self) -> None:
         """Set recovery time"""
@@ -74,3 +85,7 @@ class InfectableAgent(Agent):
             self.recovery_time = self.random.randint(14, 21)
         else:
             self.recovery_time = self.random.randint(14, 28)
+
+        self.recovery_time = int(
+            self.recovery_time * self.model.recovery_time_multiplier
+        )
