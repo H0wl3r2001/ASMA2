@@ -34,7 +34,6 @@ class InfectionModel(Model):
         self.schedule = RandomActivation(self)
         self.running = True
 
-        # self.datacollector = DataCollector(agent_reporters={"State": "state"})
         self.datacollector = DataCollector(
             {
                 "Susceptible": lambda m: self.count_state(m, State.SUSCEPTIBLE),
