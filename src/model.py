@@ -21,7 +21,8 @@ class InfectionModel(Model):
         wear_mask_chance: float = 0.5,
         mask_effectiveness: float = 0.5,
         recovery_time_multiplier: float = 1.0,
-        social_distance: int = 0
+        social_distance: int = 0,
+        social_distance_chance: float = 0.5,
     ) -> None:
         self.num_agents = num_agents
         self.num_traveling_agents = num_traveling_agents
@@ -32,6 +33,7 @@ class InfectionModel(Model):
         self.mask_effectiveness = mask_effectiveness
         self.recovery_time_multiplier = recovery_time_multiplier
         self.social_distance = social_distance
+        self.social_distance_chance = social_distance_chance
         self.grid = MultiGrid(width, height, True)
         self.schedule = RandomActivation(self)
         self.running = True

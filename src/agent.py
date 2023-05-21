@@ -56,6 +56,10 @@ class InfectableAgent(Agent):
 
     def move_with_distance(self) -> None:
         """Move the agent with concern to social distance. Tries to maximize distance if model.social_distance is not possible."""
+        if self.random.random() > self.model.social_distance_chance:
+            self.move()
+            return
+
         possible_steps = self.model.grid.get_neighborhood(
             self.pos, moore=True, include_center=False
         )

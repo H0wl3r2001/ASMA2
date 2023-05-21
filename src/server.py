@@ -73,6 +73,13 @@ sim_params = {
         max_value=5,
         step=1,
     ),
+    "social_distance_chance": Slider(
+        "Chance for agents to social distance",
+        value=0.5,  # default
+        min_value=0.0,
+        max_value=1.0,
+        step=0.1,
+    ),
     "width": NUM_CELLS,
     "height": NUM_CELLS,
 }
