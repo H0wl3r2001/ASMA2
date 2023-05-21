@@ -21,6 +21,7 @@ class InfectionModel(Model):
         wear_mask_chance: float = 0.5,
         mask_effectiveness: float = 0.5,
         recovery_time_multiplier: float = 1.0,
+        social_distance: int = 0
     ) -> None:
         self.num_agents = num_agents
         self.num_traveling_agents = num_traveling_agents
@@ -30,6 +31,7 @@ class InfectionModel(Model):
         self.wear_mask_chance = wear_mask_chance
         self.mask_effectiveness = mask_effectiveness
         self.recovery_time_multiplier = recovery_time_multiplier
+        self.social_distance = social_distance
         self.grid = MultiGrid(width, height, True)
         self.schedule = RandomActivation(self)
         self.running = True
@@ -56,9 +58,11 @@ class InfectionModel(Model):
     def step(self) -> None:
         """Advance the model by one step."""
         self.datacollector.collect(self)
-        self.schedule.step()
+
+        # travel before step to guarantee checks like social distancing
         if len(self.travelling_agents) > 0:
             self.travel()
+        self.schedule.step()
         if self.check_end():
             self.running = False
 

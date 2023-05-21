@@ -66,6 +66,13 @@ sim_params = {
         max_value=5.0,
         step=0.1,
     ),
+    "social_distance": Slider(
+        "Social distance (cells)",
+        value=0,  # default
+        min_value=0,
+        max_value=5,
+        step=1,
+    ),
     "width": NUM_CELLS,
     "height": NUM_CELLS,
 }

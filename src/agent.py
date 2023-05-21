@@ -26,7 +26,10 @@ class InfectableAgent(Agent):
 
     def step(self) -> None:
         self.check_status()
-        self.move()
+        if self.model.social_distance > 0:
+            self.move_with_distance()
+        else:
+            self.move()
         self.contact()
 
     def check_status(self) -> None:
@@ -49,6 +52,33 @@ class InfectableAgent(Agent):
         )
         new_position = self.random.choice(possible_steps)
         self.model.grid.move_agent(self, new_position)
+
+    def move_with_distance(self) -> None:
+        """Move the agent with concern to social distance. Tries to maximize distance if model.social_distance is not possible."""
+        possible_steps = self.model.grid.get_neighborhood(
+            self.pos, moore=True, include_center=False
+        )
+        self.random.shuffle(possible_steps)
+
+        new_pos = None
+        cur_distance = self.model.social_distance
+
+        while new_pos is None:
+            if cur_distance <= 0:
+                self.move()
+                return
+
+            for step in possible_steps:
+                cells_in_distance = self.model.grid.get_neighborhood(
+                    step, moore=True, include_center=True, radius=cur_distance - 1 # -1 because the center is included
+                )
+                agents_in_distance = [cell for cell in cells_in_distance if not self.model.grid.is_cell_empty(cell)]
+                if len(agents_in_distance) == 1: # only the agent itself
+                    new_pos = step
+                    break
+            cur_distance -= 1
+
+        self.model.grid.move_agent(self, new_pos)
 
     def contact(self) -> None:
         """Find close agents and infect them"""
