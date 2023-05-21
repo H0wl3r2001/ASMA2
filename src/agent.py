@@ -69,16 +69,25 @@ class InfectableAgent(Agent):
                 return
 
             for step in possible_steps:
-                cells_in_distance = self.model.grid.get_neighborhood(
-                    step, moore=True, include_center=True, radius=cur_distance - 1 # -1 because the center is included
-                )
-                agents_in_distance = [cell for cell in cells_in_distance if not self.model.grid.is_cell_empty(cell)]
-                if len(agents_in_distance) == 1: # only the agent itself
+                if self.check_social_distance(step, cur_distance):
                     new_pos = step
                     break
+ 
+            # if no position was found, try staying in the same position
+            if self.check_social_distance(self.pos, cur_distance):
+                new_pos = self.pos
+  
+            # otherwise, try with a smaller distance
             cur_distance -= 1
 
         self.model.grid.move_agent(self, new_pos)
+
+    def check_social_distance(self, pos, distance) -> bool:
+        cells_in_distance = self.model.grid.get_neighborhood(
+            pos, moore=True, include_center=True, radius=distance - 1 # -1 because the center is included
+        )
+        agents_in_distance = [cell for cell in cells_in_distance if not self.model.grid.is_cell_empty(cell)]
+        return len(agents_in_distance) == 1 # only the agent itself
 
     def contact(self) -> None:
         """Find close agents and infect them"""
