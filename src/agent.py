@@ -1,6 +1,7 @@
 from mesa import Agent
 from mesa.model import Model
 from mesa.space import Position
+from mesa.datacollection import DataCollector
 import numpy as np
 
 
@@ -17,7 +18,7 @@ class InfectableAgent(Agent):
     def __init__(self, unique_id: int, model: Model) -> None:
         super().__init__(unique_id, model)
         self.state = State.SUSCEPTIBLE
-        self.age = self.random.normalvariate(0, 100)
+        self.age = self.random.uniform(0, 99)
         self.infection_time = 0
         self.wear_mask = np.random.choice(
             [False, True],

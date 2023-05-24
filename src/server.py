@@ -3,7 +3,7 @@ from mesa.visualization.UserParam import Slider
 
 from model import InfectionModel
 from agent import InfectableAgent, State
-from mesa.visualization.modules import CanvasGrid, ChartModule
+from mesa.visualization.modules import CanvasGrid, ChartModule, BarChartModule
 
 NUM_CELLS = 15
 CANVAS_SIZE_X = 500
@@ -108,7 +108,7 @@ def agent_display(agent: InfectableAgent) -> dict:
 
 grid = CanvasGrid(agent_display, NUM_CELLS, NUM_CELLS, CANVAS_SIZE_X, CANVAS_SIZE_Y)
 
-chart = ChartModule(
+stateChart = ChartModule(
     [
         {"Label": "Susceptible", "Color": "Blue"},
         {"Label": "Infected", "Color": "Red"},
@@ -116,9 +116,28 @@ chart = ChartModule(
         {"Label": "Deceased", "Color": "Black"},
     ],
     canvas_height=300,
-    data_collector_name="datacollector",
+    data_collector_name="stateDataCollector",
 )
 
-server = ModularServer(InfectionModel, [grid, chart], "Infection Model", sim_params)
+ageBarChart = BarChartModule(
+    [
+        {"Label": "0-9", "Color": "LightBlue"},
+        {"Label": "10-19", "Color": "LightBlue"},
+        {"Label": "20-29", "Color": "LightBlue"},
+        {"Label": "30-39", "Color": "LightBlue"},
+        {"Label": "40-49", "Color": "LightBlue"},
+        {"Label": "50-59", "Color": "LightBlue"},
+        {"Label": "60-69", "Color": "LightBlue"},
+        {"Label": "70-79", "Color": "LightBlue"},
+        {"Label": "80-89", "Color": "LightBlue"},
+        {"Label": "90-99", "Color": "LightBlue"},
+    ],
+    canvas_width=1000,
+    data_collector_name="ageDataCollector",
+)
+
+server = ModularServer(
+    InfectionModel, [grid, stateChart, ageBarChart], "Infection Model", sim_params
+)
 server.port = 8521
 server.launch()

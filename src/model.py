@@ -38,7 +38,7 @@ class InfectionModel(Model):
         self.schedule = RandomActivation(self)
         self.running = True
 
-        self.datacollector = DataCollector(
+        self.stateDataCollector = DataCollector(
             {
                 "Susceptible": lambda m: self.count_state(m, State.SUSCEPTIBLE),
                 "Infected": lambda m: self.count_state(m, State.INFECTED),
@@ -46,6 +46,8 @@ class InfectionModel(Model):
                 "Deceased": lambda m: self.count_state(m, State.DECEASED),
             }
         )
+
+        self.ageDataCollector = DataCollector(self.build_age_collector())
 
         for i in range(self.num_agents):
             a = InfectableAgent(i, self)
@@ -57,9 +59,12 @@ class InfectionModel(Model):
             self.add_agent(a)
             self.travelling_agents.append(a)
 
+        self.stateDataCollector.collect(self)
+        self.ageDataCollector.collect(self)
+
     def step(self) -> None:
         """Advance the model by one step."""
-        self.datacollector.collect(self)
+        self.stateDataCollector.collect(self)
 
         # travel before step to guarantee checks like social distancing
         if len(self.travelling_agents) > 0:
@@ -76,6 +81,21 @@ class InfectionModel(Model):
     def count_state(self, model: Model, state: State) -> int:
         """Count agents with a given state in the given model"""
         return len([a for a in model.schedule.agents if a.state is state])
+
+    def count_age(self, model: Model, minAge: int, maxAge: int) -> int:
+        """Count agents with a given age in the given model"""
+        return len(
+            [a for a in model.schedule.agents if a.age >= minAge and a.age <= maxAge]
+        )
+
+    def build_age_collector(self) -> dict:
+        """Build a dict of age collectors for the data collector"""
+        age_collector = {}
+        for i in range(0, 100, 10):
+            age_collector[
+                f"{i}-{i+9}"
+            ] = lambda m, minAge=i, maxAge=i + 9: self.count_age(m, minAge, maxAge)
+        return age_collector
 
     def add_agent(self, agent: InfectableAgent) -> None:
         self.schedule.add(agent)
