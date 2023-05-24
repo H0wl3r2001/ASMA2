@@ -120,24 +120,22 @@ stateChart = ChartModule(
 )
 
 ageBarChart = BarChartModule(
-    [
-        {"Label": "0-9", "Color": "LightBlue"},
-        {"Label": "10-19", "Color": "LightBlue"},
-        {"Label": "20-29", "Color": "LightBlue"},
-        {"Label": "30-39", "Color": "LightBlue"},
-        {"Label": "40-49", "Color": "LightBlue"},
-        {"Label": "50-59", "Color": "LightBlue"},
-        {"Label": "60-69", "Color": "LightBlue"},
-        {"Label": "70-79", "Color": "LightBlue"},
-        {"Label": "80-89", "Color": "LightBlue"},
-        {"Label": "90-99", "Color": "LightBlue"},
-    ],
+    [{"Label": f"{i}-{i+9}", "Color": "LightBlue"} for i in range(0, 100, 10)],
     canvas_width=1000,
     data_collector_name="ageDataCollector",
 )
 
+timeToDieBarChart = BarChartModule(
+    [{"Label": f"{i}-{i+2}", "Color": "#ff726f"} for i in range(1, 30, 3)],
+    canvas_width=1000,
+    data_collector_name="deathDataCollector",
+)
+
 server = ModularServer(
-    InfectionModel, [grid, stateChart, ageBarChart], "Infection Model", sim_params
+    InfectionModel,
+    [grid, stateChart, timeToDieBarChart, ageBarChart],
+    "Infection Model",
+    sim_params,
 )
 server.port = 8521
 server.launch()
