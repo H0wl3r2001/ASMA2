@@ -16,10 +16,8 @@ class State:
 class InfectableAgent(Agent):
     """An agent that can get infected."""
 
-    def __init__(self, unique_id: int, model: Model, medic: bool = False) -> None:
+    def __init__(self, unique_id: int, model: Model) -> None:
         super().__init__(unique_id, model)
-        self.isMedic = medic
-        self.vaccinated = False
         self.state = State.SUSCEPTIBLE
         self.age = self.random.uniform(0, 99)
         self.infection_time = 0
@@ -44,7 +42,7 @@ class InfectableAgent(Agent):
 
     def check_status(self) -> None:
         """Check infection status"""
-        if (self.state != State.INFECTED and self.state != State.ISOLATED):
+        if (self.state != State.INFECTED | self.state != State.ISOLATED):
             return
         if(self.state != State.ISOLATED):
             isolation_rate = self.model.isolation_chance
@@ -140,16 +138,11 @@ class InfectableAgent(Agent):
             if self.state is State.INFECTED and agent.state is not State.DECEASED:
                 agent.state = State.RECOVERED
 
-    def boost_immunity(self):
-        self.vaccinated = True
+
 
     def get_infection_rate(self) -> float:
         """Get infection rate, considering factors like wearing a mask"""
-        if(self.vaccinated and self.wear_mask):
-            return self.model.infection_rate * (1 - self.model.vaccine_effectiveness - self.model.mask_effectiveness)
-        elif self.vaccinated:
-            return self.model.infection_rate * (1 - self.model.vaccine_effectiveness)            
-        elif self.wear_mask:
+        if self.wear_mask:
             return self.model.infection_rate * (1 - self.model.mask_effectiveness)
         else:
             return self.model.infection_rate

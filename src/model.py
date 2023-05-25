@@ -1,4 +1,3 @@
-import random
 from mesa import Model
 from agent import InfectableAgent, State
 from mesa.space import MultiGrid
@@ -26,12 +25,8 @@ class InfectionModel(Model):
         social_distance: int = 0,
         social_distance_chance: float = 0.5,
         isolation_duration: int = 7,
-        isolation_chance: float = 0.1,
+        isolation_chance: float = 0.3,
         curing_chance: float = 0.9,
-        vaccine_ready_time: int = 15,
-        vaccine_batch_size: int = 10,
-        vaccine_effectiveness: float = 0.5,
-        
     ) -> None:
         self.num_agents = num_agents
         self.num_traveling_agents = num_traveling_agents
@@ -47,9 +42,6 @@ class InfectionModel(Model):
         self.isolation_duration = isolation_duration
         self.isolation_chance = isolation_chance
         self.curing_chance = curing_chance
-        self.vaccine_ready_time = vaccine_ready_time
-        self.vaccine_batch_size = vaccine_batch_size
-        self.vaccine_effectiveness = vaccine_effectiveness
         self.grid = MultiGrid(width, height, True)
         self.schedule = RandomActivation(self)
         self.running = True
@@ -83,17 +75,16 @@ class InfectionModel(Model):
             self.add_agent(a)
             self.travelling_agents.append(a)
 
-        self.medic_agents = []
-        for i in range(self.num_medic_agents):
-            a = InfectableAgent(i + self.num_agents + self.num_traveling_agents, self, True)
-            self.add_agent(a)
-            self.medic_agents.append(a)
-
         self.stateDataCollector.collect(self)
         self.maskDataCollector.collect(self)
         self.ageDataCollector.collect(self)
         self.deathDataCollector.collect(self)
 
+        self.medic_agents = []
+        for i in range(self.num_medic_agents):
+            a = InfectableAgent(i + self.num_agents + self.num_traveling_agents, self)
+            self.add_agent(a)
+            self.medic_agents.append(a)
 
     def step(self) -> None:
         """Advance the model by one step."""
@@ -103,25 +94,14 @@ class InfectionModel(Model):
         self.deathDataCollector.collect(self)
 
         # travel before step to guarantee checks like social distancing
-        if(self.vaccine_ready_time != 0):
-            self.vaccine_ready_time-= 1
-        else:
-            self.deploy_vaccine()
-            
         if len(self.travelling_agents) > 0:
             self.travel()
-        if len(self.medic_agents) > 0:  
+        if len(self.medic_agents) > 0:
             self.cure()
         self.schedule.step()
         if self.check_end():
             self.running = False
 
-
-    def deploy_vaccine(self) -> None:
-        agents = random.sample(self.schedule.agents, self.vaccine_batch_size) #TODO CHECK THIS
-        for agent in agents:
-            agent.boost_immunity()
-        
     def travel(self) -> None:
         """Move traveling agents to random locations"""
         for agent in self.travelling_agents:
@@ -130,7 +110,6 @@ class InfectionModel(Model):
     def cure(self) -> None:
         for agent in self.medic_agents:
             agent.cure_adjacent()
-
 
     def count_state(self, model: Model, state: State) -> int:
         """Count agents with a given state in the given model"""

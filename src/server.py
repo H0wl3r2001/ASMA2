@@ -11,9 +11,9 @@ from mesa.visualization.modules import (
 )
 from TitleElement import TitleElement
 
-NUM_CELLS = 20
-CANVAS_SIZE_X = 1000
-CANVAS_SIZE_Y = 1000
+NUM_CELLS = 15
+CANVAS_SIZE_X = 500
+CANVAS_SIZE_Y = 500
 
 sim_params = {
     "num_agents": Slider(
@@ -102,7 +102,7 @@ sim_params = {
     ),
     "isolation_chance": Slider(
         "Chance for infected agents to enter isolation",
-        value = 0.1,
+        value = 0.3,
         min_value = 0,
         max_value = 1,
         step=0.1,
@@ -110,27 +110,6 @@ sim_params = {
     "curing_chance": Slider(
         "Chance for doctor to cure infected agent",
         value = 0.9,
-        min_value = 0,
-        max_value = 1,
-        step=0.1,
-    ),
-    "vaccine_ready_time": Slider(
-        "Duration before the vaccine is ready",
-        value = 15,
-        min_value = 0,
-        max_value = 40,
-        step=1,
-    ),
-    "vaccine_batch_size": Slider(
-        "Size of vaccine batches",
-        value = 10,
-        min_value = 0,
-        max_value = 100,
-        step=1,
-    ),
-    "vaccine_effectiveness": Slider(
-        "Vaccine effectiveness",
-        value = 0.5,
         min_value = 0,
         max_value = 1,
         step=0.1,
@@ -143,28 +122,25 @@ sim_params = {
 def agent_display(agent: InfectableAgent) -> dict:
     """Display agent with infection state"""
     display = {"Shape": "circle", "Filled": "true", "Layer": 0}
-    if agent.isMedic == True:
-        display["Color"] = "Grey"
-        display["r"] = 0.6
-    elif agent.state is State.SUSCEPTIBLE:
+    if agent.state is State.SUSCEPTIBLE:
         display["Color"] = "Blue"
         display["r"] = 0.5
     elif agent.state is State.INFECTED:
         display["Color"] = "Red"
         display["Layer"] = 3
-        display["r"] = 0.4
+        display["r"] = 0.2
     elif agent.state is State.ISOLATED:
         display["Color"] ="Yellow"
         display["Layer"] = 4
-        display["r"] = 0.3
+        display["r"] = 0.6
     elif agent.state is State.RECOVERED:
         display["Color"] = "Green"
         display["Layer"] = 1
-        display["r"] = 0.2
+        display["r"] = 0.4
     elif agent.state is State.DECEASED:
         display["Color"] = "Black"
         display["Layer"] = 2
-        display["r"] = 0.1
+        display["r"] = 0.3
     return display
 
 
