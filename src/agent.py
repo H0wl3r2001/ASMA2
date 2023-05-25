@@ -1,6 +1,7 @@
 from mesa import Agent
 from mesa.model import Model
 from mesa.space import Position
+from mesa.datacollection import DataCollector
 import numpy as np
 
 
@@ -18,7 +19,7 @@ class InfectableAgent(Agent):
     def __init__(self, unique_id: int, model: Model) -> None:
         super().__init__(unique_id, model)
         self.state = State.SUSCEPTIBLE
-        self.age = self.random.normalvariate(0, 100)
+        self.age = self.random.uniform(0, 99)
         self.infection_time = 0
         self.wear_mask = np.random.choice(
             [False, True],
@@ -53,6 +54,7 @@ class InfectableAgent(Agent):
         alive = np.random.choice([0, 1], p=[death_rate, 1 - death_rate])
         if alive == 0:
             self.state = State.DECEASED
+            self.model.register_death(self)
         else:
             t = self.model.schedule.time - self.infection_time
             if t >= self.recovery_time:
