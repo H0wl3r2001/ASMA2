@@ -9,6 +9,7 @@ from mesa.visualization.modules import (
     BarChartModule,
     PieChartModule,
 )
+from TitleElement import TitleElement
 
 NUM_CELLS = 15
 CANVAS_SIZE_X = 500
@@ -147,7 +148,18 @@ maskPieChart = PieChartModule(
 
 server = ModularServer(
     InfectionModel,
-    [grid, stateChart, timeToDieBarChart, ageBarChart, maskPieChart],
+    [
+        TitleElement("The World", False, 150),
+        grid,
+        TitleElement("Agent States"),
+        stateChart,
+        TitleElement("Death Time after Infection (steps)"),
+        timeToDieBarChart,
+        TitleElement("Age Distribution (years)"),
+        ageBarChart,
+        TitleElement("Mask Wearing Distribution", False, 50),
+        maskPieChart,
+    ],
     "Infection Model",
     sim_params,
 )
