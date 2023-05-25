@@ -7,8 +7,9 @@ import numpy as np
 class State:
     SUSCEPTIBLE = 0
     INFECTED = 1
-    DECEASED = 2
-    RECOVERED = 3
+    ISOLATED = 2
+    DECEASED = 3
+    RECOVERED = 4
 
 
 class InfectableAgent(Agent):
@@ -23,11 +24,16 @@ class InfectableAgent(Agent):
             [False, True],
             p=[1 - self.model.wear_mask_chance, self.model.wear_mask_chance],
         )
+        self.isolation_time = 0
         self.set_recovery_time()
 
     def step(self) -> None:
         self.check_status()
-        if self.model.social_distance > 0:
+        if self.state == State.ISOLATED:
+            self.isolation_time += 1
+            if(self.isolation_time == self.model.isolation_duration):
+                self.state = State.INFECTED
+        elif self.model.social_distance > 0:
             self.move_with_distance()
         else:
             self.move()
@@ -35,8 +41,14 @@ class InfectableAgent(Agent):
 
     def check_status(self) -> None:
         """Check infection status"""
-        if self.state != State.INFECTED:
+        if (self.state != State.INFECTED | self.state != State.ISOLATED):
             return
+        if(self.state != State.ISOLATED):
+            isolation_rate = self.model.isolation_chance
+            isolated = np.random.choice([0,1], p=[isolation_rate, 1-isolation_rate])
+            if(isolated == 0):
+                self.isolation_time = 0
+                self.state = State.ISOLATED
         death_rate = self.model.death_rate
         alive = np.random.choice([0, 1], p=[death_rate, 1 - death_rate])
         if alive == 0:

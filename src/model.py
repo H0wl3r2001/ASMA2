@@ -23,6 +23,8 @@ class InfectionModel(Model):
         recovery_time_multiplier: float = 1.0,
         social_distance: int = 0,
         social_distance_chance: float = 0.5,
+        isolation_duration: int = 7,
+        isolation_chance: float = 0.3,
     ) -> None:
         self.num_agents = num_agents
         self.num_traveling_agents = num_traveling_agents
@@ -34,6 +36,8 @@ class InfectionModel(Model):
         self.recovery_time_multiplier = recovery_time_multiplier
         self.social_distance = social_distance
         self.social_distance_chance = social_distance_chance
+        self.isolation_duration = isolation_duration
+        self.isolation_chance = isolation_chance
         self.grid = MultiGrid(width, height, True)
         self.schedule = RandomActivation(self)
         self.running = True
@@ -42,6 +46,7 @@ class InfectionModel(Model):
             {
                 "Susceptible": lambda m: self.count_state(m, State.SUSCEPTIBLE),
                 "Infected": lambda m: self.count_state(m, State.INFECTED),
+                "Isolated": lambda m: self.count_state(m, State.ISOLATED),
                 "Recovered": lambda m: self.count_state(m, State.RECOVERED),
                 "Deceased": lambda m: self.count_state(m, State.DECEASED),
             }

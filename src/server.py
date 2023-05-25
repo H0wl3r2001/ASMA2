@@ -80,6 +80,20 @@ sim_params = {
         max_value=1.0,
         step=0.1,
     ),
+    "isolation_duration": Slider(
+        "Isolation duration",
+        value = 10,
+        min_value = 0,
+        max_value= 30,
+        step = 1,
+    ),
+    "isolation_chance": Slider(
+        "Chance for agents to enter isolation after being infected",
+        value = 0.3,
+        min_value = 0,
+        max_value = 1,
+        step=0.1,
+    ),
     "width": NUM_CELLS,
     "height": NUM_CELLS,
 }
@@ -95,6 +109,10 @@ def agent_display(agent: InfectableAgent) -> dict:
         display["Color"] = "Red"
         display["Layer"] = 3
         display["r"] = 0.2
+    elif agent.state is State.ISOLATED:
+        display["Color"] ="Yellow"
+        display["Layer"] = 4
+        display["r"] = 0.6
     elif agent.state is State.RECOVERED:
         display["Color"] = "Green"
         display["Layer"] = 1
@@ -112,6 +130,7 @@ chart = ChartModule(
     [
         {"Label": "Susceptible", "Color": "Blue"},
         {"Label": "Infected", "Color": "Red"},
+        {"Label": "Isolated", "Color" : "Yellow"},
         {"Label": "Recovered", "Color": "Green"},
         {"Label": "Deceased", "Color": "Black"},
     ],
