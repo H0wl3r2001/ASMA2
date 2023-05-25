@@ -102,7 +102,7 @@ sim_params = {
     ),
     "isolation_chance": Slider(
         "Chance for infected agents to enter isolation",
-        value = 0.3,
+        value = 0.1,
         min_value = 0,
         max_value = 1,
         step=0.1,
@@ -121,6 +121,20 @@ sim_params = {
         max_value = 40,
         step=1,
     ),
+    "vaccine_batch_size": Slider(
+        "Size of vaccine batches",
+        value = 10,
+        min_value = 0,
+        max_value = 100,
+        step=1,
+    ),
+    "vaccine_effectiveness": Slider(
+        "Vaccine effectiveness",
+        value = 0.5,
+        min_value = 0,
+        max_value = 1,
+        step=0.1,
+    ),
     "width": NUM_CELLS,
     "height": NUM_CELLS,
 }
@@ -131,26 +145,26 @@ def agent_display(agent: InfectableAgent) -> dict:
     display = {"Shape": "circle", "Filled": "true", "Layer": 0}
     if agent.isMedic == True:
         display["Color"] = "Grey"
-        display["r"] = 0.5
+        display["r"] = 0.6
     elif agent.state is State.SUSCEPTIBLE:
         display["Color"] = "Blue"
         display["r"] = 0.5
     elif agent.state is State.INFECTED:
         display["Color"] = "Red"
         display["Layer"] = 3
-        display["r"] = 0.2
+        display["r"] = 0.4
     elif agent.state is State.ISOLATED:
         display["Color"] ="Yellow"
         display["Layer"] = 4
-        display["r"] = 0.6
+        display["r"] = 0.3
     elif agent.state is State.RECOVERED:
         display["Color"] = "Green"
         display["Layer"] = 1
-        display["r"] = 0.4
+        display["r"] = 0.2
     elif agent.state is State.DECEASED:
         display["Color"] = "Black"
         display["Layer"] = 2
-        display["r"] = 0.3
+        display["r"] = 0.1
     return display
 
 
