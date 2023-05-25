@@ -53,8 +53,9 @@ class InfectionModel(Model):
         self.grid = MultiGrid(width, height, True)
         self.schedule = RandomActivation(self)
         self.running = True
+        self.death_time_freqs = {}
 
-        self.datacollector = DataCollector(
+        self.stateDataCollector = DataCollector(
             {
                 "Susceptible": lambda m: self.count_state(m, State.SUSCEPTIBLE),
                 "Infected": lambda m: self.count_state(m, State.INFECTED),
@@ -63,6 +64,14 @@ class InfectionModel(Model):
                 "Deceased": lambda m: self.count_state(m, State.DECEASED),
             }
         )
+        self.maskDataCollector = DataCollector(
+            {
+                "Wearing Mask": lambda m: self.count_mask(m, True),
+                "Not Wearing Mask": lambda m: self.count_mask(m, False),
+            }
+        )
+        self.ageDataCollector = DataCollector(self.build_age_collector())
+        self.deathDataCollector = DataCollector(self.build_death_collector())
 
         for i in range(self.num_agents):
             a = InfectableAgent(i, self)
@@ -80,9 +89,18 @@ class InfectionModel(Model):
             self.add_agent(a)
             self.medic_agents.append(a)
 
+        self.stateDataCollector.collect(self)
+        self.maskDataCollector.collect(self)
+        self.ageDataCollector.collect(self)
+        self.deathDataCollector.collect(self)
+
+
     def step(self) -> None:
         """Advance the model by one step."""
-        self.datacollector.collect(self)
+        self.stateDataCollector.collect(self)
+        self.maskDataCollector.collect(self)
+        self.ageDataCollector.collect(self)
+        self.deathDataCollector.collect(self)
 
         # travel before step to guarantee checks like social distancing
         if(self.vaccine_ready_time != 0):
@@ -118,6 +136,55 @@ class InfectionModel(Model):
         """Count agents with a given state in the given model"""
         return len([a for a in model.schedule.agents if a.state is state])
 
+    def count_age(self, model: Model, minAge: int, maxAge: int) -> int:
+        """Count agents with a given age in the given model"""
+        return len(
+            [
+                a
+                for a in model.schedule.agents
+                if a.age >= minAge and a.age <= maxAge and a.state is not State.DECEASED
+            ]
+        )
+
+    def count_death(self, model: Model, minDays: int, maxDays: int) -> int:
+        """Count agents who died within a given time frame in the given model"""
+        freqs = [
+            self.death_time_freqs[t]
+            for t in range(minDays, maxDays + 1)
+            if t in self.death_time_freqs
+        ]
+        return sum(freqs)
+
+    def count_mask(self, model: Model, wearing: bool) -> int:
+        """Count agents who are wearing/not wearing a mask in the given model"""
+        return len(
+            [
+                a
+                for a in model.schedule.agents
+                if a.wear_mask == wearing and a.state is not State.DECEASED
+            ]
+        )
+
+    def build_age_collector(self) -> dict:
+        """Build a dict of age collectors for the data collector"""
+        age_collector = {}
+        for i in range(0, 100, 10):
+            age_collector[
+                f"{i}-{i+9}"
+            ] = lambda m, minAge=i, maxAge=i + 9: self.count_age(m, minAge, maxAge)
+        return age_collector
+
+    def build_death_collector(self) -> dict:
+        """Build a dict of death collectors for the data collector"""
+        death_collector = {}
+        for i in range(1, 30, 3):
+            death_collector[
+                f"{i}-{i+2}"
+            ] = lambda m, minDays=i, maxDays=i + 4: self.count_death(
+                m, minDays, maxDays
+            )
+        return death_collector
+
     def add_agent(self, agent: InfectableAgent) -> None:
         self.schedule.add(agent)
         self.place_agent(agent)
@@ -139,3 +206,11 @@ class InfectionModel(Model):
 
     def check_end(self) -> bool:
         return not any([a.state is State.INFECTED for a in self.schedule.agents])
+
+    def register_death(self, agent: InfectableAgent) -> None:
+        """Register the death of an agent"""
+        death_time = self.schedule.time - agent.infection_time
+        if death_time in self.death_time_freqs:
+            self.death_time_freqs[death_time] += 1
+        else:
+            self.death_time_freqs[death_time] = 1
