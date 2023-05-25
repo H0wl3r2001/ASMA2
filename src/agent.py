@@ -15,8 +15,9 @@ class State:
 class InfectableAgent(Agent):
     """An agent that can get infected."""
 
-    def __init__(self, unique_id: int, model: Model) -> None:
+    def __init__(self, unique_id: int, model: Model, medic: bool = False) -> None:
         super().__init__(unique_id, model)
+        self.isMedic = medic
         self.state = State.SUSCEPTIBLE
         self.age = self.random.normalvariate(0, 100)
         self.infection_time = 0

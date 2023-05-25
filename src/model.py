@@ -27,6 +27,7 @@ class InfectionModel(Model):
         isolation_duration: int = 7,
         isolation_chance: float = 0.3,
         curing_chance: float = 0.9,
+        vaccine_ready_time: int = 15,
     ) -> None:
         self.num_agents = num_agents
         self.num_traveling_agents = num_traveling_agents
@@ -42,6 +43,7 @@ class InfectionModel(Model):
         self.isolation_duration = isolation_duration
         self.isolation_chance = isolation_chance
         self.curing_chance = curing_chance
+        self.vaccine_ready_time = vaccine_ready_time
         self.grid = MultiGrid(width, height, True)
         self.schedule = RandomActivation(self)
         self.running = True
@@ -68,7 +70,7 @@ class InfectionModel(Model):
 
         self.medic_agents = []
         for i in range(self.num_medic_agents):
-            a = InfectableAgent(i + self.num_agents + self.num_traveling_agents, self)
+            a = InfectableAgent(i + self.num_agents + self.num_traveling_agents, self, True)
             self.add_agent(a)
             self.medic_agents.append(a)
 

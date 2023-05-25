@@ -5,9 +5,9 @@ from model import InfectionModel
 from agent import InfectableAgent, State
 from mesa.visualization.modules import CanvasGrid, ChartModule
 
-NUM_CELLS = 15
-CANVAS_SIZE_X = 500
-CANVAS_SIZE_Y = 500
+NUM_CELLS = 20
+CANVAS_SIZE_X = 1000
+CANVAS_SIZE_Y = 1000
 
 sim_params = {
     "num_agents": Slider(
@@ -108,6 +108,13 @@ sim_params = {
         max_value = 1,
         step=0.1,
     ),
+    "vaccine_ready_time": Slider(
+        "Duration before the vaccine is ready",
+        value = 15,
+        min_value = 0,
+        max_value = 40,
+        step=1,
+    ),
     "width": NUM_CELLS,
     "height": NUM_CELLS,
 }
@@ -116,7 +123,10 @@ sim_params = {
 def agent_display(agent: InfectableAgent) -> dict:
     """Display agent with infection state"""
     display = {"Shape": "circle", "Filled": "true", "Layer": 0}
-    if agent.state is State.SUSCEPTIBLE:
+    if agent.isMedic == True:
+        display["Color"] = "Grey"
+        display["r"] = 0.5
+    elif agent.state is State.SUSCEPTIBLE:
         display["Color"] = "Blue"
         display["r"] = 0.5
     elif agent.state is State.INFECTED:
