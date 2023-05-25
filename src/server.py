@@ -24,6 +24,13 @@ sim_params = {
         max_value=100,
         step=1,
     ),
+    "num_medic_agents": Slider(
+        "Number of medic agents",
+        value=0,  # default
+        min_value=0,
+        max_value=100,
+        step=1,
+    ),
     "infection_rate": Slider(
         "Infection rate",
         value=0.7,  # default
@@ -88,8 +95,15 @@ sim_params = {
         step = 1,
     ),
     "isolation_chance": Slider(
-        "Chance for agents to enter isolation after being infected",
+        "Chance for infected agents to enter isolation",
         value = 0.3,
+        min_value = 0,
+        max_value = 1,
+        step=0.1,
+    ),
+    "curing_chance": Slider(
+        "Chance for doctor to cure infected agent",
+        value = 0.9,
         min_value = 0,
         max_value = 1,
         step=0.1,

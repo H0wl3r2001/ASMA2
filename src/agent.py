@@ -125,6 +125,19 @@ class InfectableAgent(Agent):
                 agent.state = State.INFECTED
                 agent.infection_time = self.model.schedule.time
 
+
+    def cure_adjacent(self) -> None:
+        cellmates = self.model.grid.get_cell_list_contents([self.pos])
+        if len(cellmates) == 0:
+            return
+        for agent in cellmates:
+            if self.random.random() > self.model.curing_chance:
+                continue
+            if self.state is State.INFECTED and agent.state is not State.DECEASED:
+                agent.state = State.RECOVERED
+
+
+
     def get_infection_rate(self) -> float:
         """Get infection rate, considering factors like wearing a mask"""
         if self.wear_mask:
