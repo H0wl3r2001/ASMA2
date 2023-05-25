@@ -47,7 +47,12 @@ class InfectionModel(Model):
                 "Deceased": lambda m: self.count_state(m, State.DECEASED),
             }
         )
-
+        self.maskDataCollector = DataCollector(
+            {
+                "Wearing Mask": lambda m: self.count_mask(m, True),
+                "Not Wearing Mask": lambda m: self.count_mask(m, False),
+            }
+        )
         self.ageDataCollector = DataCollector(self.build_age_collector())
         self.deathDataCollector = DataCollector(self.build_death_collector())
 
@@ -62,12 +67,15 @@ class InfectionModel(Model):
             self.travelling_agents.append(a)
 
         self.stateDataCollector.collect(self)
+        self.maskDataCollector.collect(self)
         self.ageDataCollector.collect(self)
         self.deathDataCollector.collect(self)
 
     def step(self) -> None:
         """Advance the model by one step."""
         self.stateDataCollector.collect(self)
+        self.maskDataCollector.collect(self)
+        self.ageDataCollector.collect(self)
         self.deathDataCollector.collect(self)
 
         # travel before step to guarantee checks like social distancing
@@ -89,7 +97,11 @@ class InfectionModel(Model):
     def count_age(self, model: Model, minAge: int, maxAge: int) -> int:
         """Count agents with a given age in the given model"""
         return len(
-            [a for a in model.schedule.agents if a.age >= minAge and a.age <= maxAge]
+            [
+                a
+                for a in model.schedule.agents
+                if a.age >= minAge and a.age <= maxAge and a.state is not State.DECEASED
+            ]
         )
 
     def count_death(self, model: Model, minDays: int, maxDays: int) -> int:
@@ -100,6 +112,16 @@ class InfectionModel(Model):
             if t in self.death_time_freqs
         ]
         return sum(freqs)
+
+    def count_mask(self, model: Model, wearing: bool) -> int:
+        """Count agents who are wearing/not wearing a mask in the given model"""
+        return len(
+            [
+                a
+                for a in model.schedule.agents
+                if a.wear_mask == wearing and a.state is not State.DECEASED
+            ]
+        )
 
     def build_age_collector(self) -> dict:
         """Build a dict of age collectors for the data collector"""

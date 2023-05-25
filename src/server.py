@@ -3,7 +3,12 @@ from mesa.visualization.UserParam import Slider
 
 from model import InfectionModel
 from agent import InfectableAgent, State
-from mesa.visualization.modules import CanvasGrid, ChartModule, BarChartModule
+from mesa.visualization.modules import (
+    CanvasGrid,
+    ChartModule,
+    BarChartModule,
+    PieChartModule,
+)
 
 NUM_CELLS = 15
 CANVAS_SIZE_X = 500
@@ -119,21 +124,30 @@ stateChart = ChartModule(
     data_collector_name="stateDataCollector",
 )
 
-ageBarChart = BarChartModule(
-    [{"Label": f"{i}-{i+9}", "Color": "LightBlue"} for i in range(0, 100, 10)],
-    canvas_width=1000,
-    data_collector_name="ageDataCollector",
-)
-
 timeToDieBarChart = BarChartModule(
     [{"Label": f"{i}-{i+2}", "Color": "#ff726f"} for i in range(1, 30, 3)],
     canvas_width=1000,
     data_collector_name="deathDataCollector",
 )
 
+ageBarChart = BarChartModule(
+    [{"Label": f"{i}-{i+9}", "Color": "LightBlue"} for i in range(0, 100, 10)],
+    canvas_width=1000,
+    data_collector_name="ageDataCollector",
+)
+
+maskPieChart = PieChartModule(
+    [
+        {"Label": "Wearing Mask", "Color": "Green"},
+        {"Label": "Not Wearing Mask", "Color": "Red"},
+    ],
+    canvas_height=300,
+    data_collector_name="maskDataCollector",
+)
+
 server = ModularServer(
     InfectionModel,
-    [grid, stateChart, timeToDieBarChart, ageBarChart],
+    [grid, stateChart, timeToDieBarChart, ageBarChart, maskPieChart],
     "Infection Model",
     sim_params,
 )
