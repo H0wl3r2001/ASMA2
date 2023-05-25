@@ -11,7 +11,7 @@ from mesa.visualization.modules import (
 )
 from TitleElement import TitleElement
 
-NUM_CELLS = 50
+NUM_CELLS = 25
 CANVAS_SIZE_X = 800
 CANVAS_SIZE_Y = 800
 
@@ -20,7 +20,7 @@ sim_params = {
         "Number of regular agents",
         value=100,
         min_value=10,
-        max_value=1000,
+        max_value=500,
         step=1,
     ),
     "num_traveling_agents": Slider(
@@ -215,7 +215,7 @@ vaccinationChart = PieChartModule(
 server = ModularServer(
     InfectionModel,
     [
-        TitleElement("The World", False, 150),
+        TitleElement("The World"),
         grid,
         TitleElement("Agent States"),
         stateChart,
