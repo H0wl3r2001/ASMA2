@@ -34,7 +34,7 @@ class InfectableAgent(Agent):
         self.check_status()
         if self.state == State.ISOLATED:
             self.isolation_time += 1
-            if(self.isolation_time == self.model.isolation_duration):
+            if self.isolation_time == self.model.isolation_duration:
                 self.state = State.INFECTED
         elif self.model.social_distance > 0:
             self.move_with_distance()
@@ -44,12 +44,12 @@ class InfectableAgent(Agent):
 
     def check_status(self) -> None:
         """Check infection status"""
-        if (self.state != State.INFECTED and self.state != State.ISOLATED):
+        if self.state != State.INFECTED and self.state != State.ISOLATED:
             return
-        if(self.state != State.ISOLATED):
+        if self.state != State.ISOLATED:
             isolation_rate = self.model.isolation_chance
-            isolated = np.random.choice([0,1], p=[isolation_rate, 1-isolation_rate])
-            if(isolated == 0):
+            isolated = np.random.choice([0, 1], p=[isolation_rate, 1 - isolation_rate])
+            if isolated == 0:
                 self.isolation_time = 0
                 self.state = State.ISOLATED
         death_rate = self.model.death_rate
@@ -129,7 +129,6 @@ class InfectableAgent(Agent):
                 agent.state = State.INFECTED
                 agent.infection_time = self.model.schedule.time
 
-
     def cure_adjacent(self) -> None:
         cellmates = self.model.grid.get_cell_list_contents([self.pos])
         if len(cellmates) == 0:
@@ -145,10 +144,12 @@ class InfectableAgent(Agent):
 
     def get_infection_rate(self) -> float:
         """Get infection rate, considering factors like wearing a mask"""
-        if(self.vaccinated and self.wear_mask):
-            return self.model.infection_rate * (1 - self.model.vaccine_effectiveness - self.model.mask_effectiveness)
+        if self.vaccinated and self.wear_mask:
+            return self.model.infection_rate * (
+                1 - self.model.vaccine_effectiveness - self.model.mask_effectiveness
+            )
         elif self.vaccinated:
-            return self.model.infection_rate * (1 - self.model.vaccine_effectiveness)            
+            return self.model.infection_rate * (1 - self.model.vaccine_effectiveness)
         elif self.wear_mask:
             return self.model.infection_rate * (1 - self.model.mask_effectiveness)
         else:

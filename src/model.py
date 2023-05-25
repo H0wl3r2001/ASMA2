@@ -31,7 +31,6 @@ class InfectionModel(Model):
         vaccine_ready_time: int = 15,
         vaccine_batch_size: int = 10,
         vaccine_effectiveness: float = 0.5,
-        
     ) -> None:
         self.num_agents = num_agents
         self.num_traveling_agents = num_traveling_agents
@@ -64,10 +63,12 @@ class InfectionModel(Model):
                 "Deceased": lambda m: self.count_state(m, State.DECEASED),
             }
         )
-        self.maskDataCollector = DataCollector(
+        self.protectionDataCollector = DataCollector(
             {
                 "Wearing Mask": lambda m: self.count_mask(m, True),
                 "Not Wearing Mask": lambda m: self.count_mask(m, False),
+                "Vaccinated": lambda m: self.count_vaccinated(m, True),
+                "Not Vaccinated": lambda m: self.count_vaccinated(m, False),
             }
         )
         self.ageDataCollector = DataCollector(self.build_age_collector())
@@ -84,43 +85,44 @@ class InfectionModel(Model):
             self.travelling_agents.append(a)
 
         self.stateDataCollector.collect(self)
-        self.maskDataCollector.collect(self)
+        self.protectionDataCollector.collect(self)
         self.ageDataCollector.collect(self)
         self.deathDataCollector.collect(self)
 
         self.medic_agents = []
         for i in range(self.num_medic_agents):
-            a = InfectableAgent(i + self.num_agents + self.num_traveling_agents, self, True)
+            a = InfectableAgent(
+                i + self.num_agents + self.num_traveling_agents, self, True
+            )
             self.add_agent(a)
             self.medic_agents.append(a)
 
     def step(self) -> None:
         """Advance the model by one step."""
         self.stateDataCollector.collect(self)
-        self.maskDataCollector.collect(self)
+        self.protectionDataCollector.collect(self)
         self.ageDataCollector.collect(self)
         self.deathDataCollector.collect(self)
 
         # travel before step to guarantee checks like social distancing
-        if(self.vaccine_ready_time != 0):
-            self.vaccine_ready_time-= 1
+        if self.vaccine_ready_time != 0:
+            self.vaccine_ready_time -= 1
         else:
             self.deploy_vaccine()
-            
+
         if len(self.travelling_agents) > 0:
             self.travel()
-        if len(self.medic_agents) > 0:  
+        if len(self.medic_agents) > 0:
             self.cure()
         self.schedule.step()
         if self.check_end():
             self.running = False
 
-
     def deploy_vaccine(self) -> None:
-        agents = random.sample(self.schedule.agents, self.vaccine_batch_size) #TODO CHECK THIS
+        agents = random.sample(self.schedule.agents, self.vaccine_batch_size)
         for agent in agents:
             agent.boost_immunity()
-        
+
     def travel(self) -> None:
         """Move traveling agents to random locations"""
         for agent in self.travelling_agents:
@@ -160,6 +162,16 @@ class InfectionModel(Model):
                 a
                 for a in model.schedule.agents
                 if a.wear_mask == wearing and a.state is not State.DECEASED
+            ]
+        )
+
+    def count_vaccinated(self, model: Model, vaccinated: bool) -> int:
+        """Count agents who are vaccinated in the given model"""
+        return len(
+            [
+                a
+                for a in model.schedule.agents
+                if a.vaccinated == vaccinated and a.state is not State.DECEASED
             ]
         )
 
